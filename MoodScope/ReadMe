@@ -25,5 +25,5 @@
 6. visualization/
 Эта папка содержит модули для визуализации данных.
 
-7) notifications.py:
-Отправляет уведомления в Telegram, Slack или email.
+7. notifications.py
+Этот файл отвечает за отправку уведомлений.
