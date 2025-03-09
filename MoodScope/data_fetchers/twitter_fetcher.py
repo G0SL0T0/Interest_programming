@@ -1,12 +1,22 @@
 import tweepy
-from config import TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET
+from dotenv import load_dotenv
+import os
+from utils.logging_utils import log_info, log_error
+
+# Загружаем переменные окружения
+load_dotenv()
 
 # Аутентификация
-auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
-auth.set_access_token(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
+auth = tweepy.OAuthHandler(os.getenv('consumer_key'), os.getenv('consumer_SECRET'))
+auth.set_access_token(os.getenv('access_token'), os.getenv('access_token_SECRET'))
 api = tweepy.API(auth)
 
 # Сбор твитов
 def fetch_tweets(query, count=10):
-    tweets = tweepy.Cursor(api.search_tweets, q=query, lang="en").items(count)
-    return [tweet.text for tweet in tweets]
+    try:
+        tweets = tweepy.Cursor(api.search_tweets, q=query, lang="en").items(count)
+        log_info(f"Fetched {count} tweets for query: {query}")
+        return [tweet.text for tweet in tweets]
+    except Exception as e:
+        log_error(f"Error fetching tweets: {e}")
+        return []
