@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-def visualize_sorting(data_generator, title):
+def visualize_sorting(data_generator, title, interval=100):
     fig, ax = plt.subplots()
     ax.set_title(title)
 
@@ -16,5 +16,5 @@ def visualize_sorting(data_generator, title):
         return bars
 
     # Создание анимации
-    anim = animation.FuncAnimation(fig, update_fig, frames=data_generator, repeat=False, interval=100)
+    anim = animation.FuncAnimation(fig, update_fig, frames=data_generator, repeat=False, interval=interval)
     plt.show()

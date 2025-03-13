@@ -7,6 +7,7 @@ from utils import generate_data
 def start_sorting():
     size = int(size_entry.get())
     algorithm = algorithm_combobox.get()
+    speed = speed_scale.get()
     data = generate_data(size)
 
     if algorithm == "Bubble Sort":
@@ -18,7 +19,7 @@ def start_sorting():
     else:
         return
 
-    visualize_sorting(generator, algorithm)
+    visualize_sorting(generator, algorithm, speed)
 
 # Создаем интерфейс
 root = tk.Tk()
@@ -35,6 +36,12 @@ algorithm_label = tk.Label(root, text="Алгоритм сортировки:")
 algorithm_label.pack()
 algorithm_combobox = ttk.Combobox(root, values=["Bubble Sort", "Quick Sort", "Merge Sort"])
 algorithm_combobox.pack()
+
+# Ползунок для скорости
+speed_label = tk.Label(root, text="Скорость анимации (мс):")
+speed_label.pack()
+speed_scale = tk.Scale(root, from_=10, to=500, orient=tk.HORIZONTAL)
+speed_scale.pack()
 
 # Кнопка запуска
 start_button = tk.Button(root, text="Начать сортировку", command=start_sorting)
