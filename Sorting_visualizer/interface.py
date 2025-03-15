@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from algorithms import bubble_sort, quick_sort, merge_sort
+from algorithms import bubble_sort, quick_sort, merge_sort, heap_sort, insertion_sort, selection_sort
 from visualization import visualize_sorting
 from utils import generate_data
 
@@ -16,6 +16,12 @@ def start_sorting():
         generator = quick_sort(data)
     elif algorithm == "Merge Sort":
         generator = merge_sort(data)
+    elif algorithm == "Heap Sort":
+        generator = heap_sort(data)
+    elif algorithm == "Insertion Sort":
+        generator = insertion_sort(data)
+    elif algorithm == "Selection Sort":
+        generator = selection_sort(data)
     else:
         return
 
@@ -34,7 +40,9 @@ size_entry.pack()
 # Выбор алгоритма
 algorithm_label = tk.Label(root, text="Алгоритм сортировки:")
 algorithm_label.pack()
-algorithm_combobox = ttk.Combobox(root, values=["Bubble Sort", "Quick Sort", "Merge Sort"])
+algorithm_combobox = ttk.Combobox(root, values=[
+    "Bubble Sort", "Quick Sort", "Merge Sort", "Heap Sort", "Insertion Sort", "Selection Sort"
+])
 algorithm_combobox.pack()
 
 # Ползунок для скорости

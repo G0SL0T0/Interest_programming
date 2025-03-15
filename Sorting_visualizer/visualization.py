@@ -1,4 +1,8 @@
-def visualize_sorting(data_generator, title, interval=100):
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib.animation import PillowWriter
+
+def visualize_sorting(data_generator, title, interval=100, save_gif=False):
     fig, ax = plt.subplots()
     ax.set_title(title)
 
@@ -15,4 +19,9 @@ def visualize_sorting(data_generator, title, interval=100):
         return bars
 
     anim = animation.FuncAnimation(fig, update_fig, frames=data_generator, repeat=False, interval=interval)
+    
+    if save_gif:
+        writer = PillowWriter(fps=15)
+        anim.save("sorting.gif", writer=writer)
+    
     plt.show()
