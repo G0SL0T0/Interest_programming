@@ -1,10 +1,14 @@
-import random
-import simpleaudio as sa
+import logging
 
-def generate_data(size):
-    return [random.randint(1, 100) for _ in range(size)]
+def setup_logging():
+    logging.basicConfig(
+        filename='app.log',
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
 
-def play_sound():
-    wave_obj = sa.WaveObject.from_wave_file("sound.wav")
-    play_obj = wave_obj.play()
-    play_obj.wait_done()
+def log_info(message):
+    logging.info(message)
+
+def log_error(message):
+    logging.error(message)
