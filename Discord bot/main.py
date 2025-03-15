@@ -1,12 +1,31 @@
 import disnake
 from disnake.ext import commands
 from disnake.ui import Button, View
+from disnake import FFmpegPCMAudio
 import random
+import requests
+import youtube_dl
+
 
 # Настройки бота
 intents = disnake.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+ytdl_format_options = {
+    'format': 'bestaudio/best',
+    'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
+    'restrictfilenames': True,
+    'noplaylist': True,
+    'nocheckcertificate': True,
+    'ignoreerrors': False,
+    'logtostderr': False,
+    'quiet': True,
+    'no_warnings': True,
+    'default_search': 'auto',
+    'source_address': '0.0.0.0'
+}
+
+ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 # Главное меню
 class MainMenu(View):
     def __init__(self):
@@ -129,6 +148,37 @@ async def clear(ctx, amount: int):
     await ctx.channel.purge(limit=amount + 1)
     await ctx.send(f"Удалено {amount} сообщений.", delete_after=5)
 
+@bot.command()
+async def translate(ctx, text: str, lang: str):
+    url = f"https://api.mymemory.translated.net/get?q={text}&langpair=en|{lang}"
+    response = requests.get(url).json()
+    translation = response["responseData"]["translatedText"]
+    await ctx.send(f"Перевод: {translation}")
+    
+@bot.command()
+async def play(ctx, url: str):
+    voice_channel = ctx.author.voice.channel
+    if not voice_channel:
+        await ctx.send("Вы должны находиться в голосовом канале!")
+        return
+
+    voice_client = await voice_channel.connect()
+    with ytdl as ydl:
+        info = ydl.extract_info(url, download=False)
+        url2 = info['formats'][0]['url']
+        voice_client.play(FFmpegPCMAudio(url2))
+
+@bot.command()
+async def stop(ctx):
+    voice_client = ctx.voice_client
+    if voice_client.is_playing():
+        voice_client.stop()
+        await ctx.send("Музыка остановлена.")
+        
+@bot.command()
+async def google(ctx, query: str):
+    await ctx.send(f"Результаты поиска для '{query}': https://www.google.com/search?q={query}")
+    
 # Событие при запуске бота
 @bot.event
 async def on_ready():
