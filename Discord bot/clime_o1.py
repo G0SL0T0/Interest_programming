@@ -7,15 +7,36 @@ import os
 import requests
 import youtube_dl
 from disnake import FFmpegPCMAudio
+from datetime import datetime
 
 # Настройки бота
 intents = disnake.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+ytdl_format_options = {
+    'format': 'bestaudio/best',
+    'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
+    'restrictfilenames': True,
+    'noplaylist': True,
+    'nocheckcertificate': True,
+    'ignoreerrors': False,
+    'logtostderr': False,
+    'quiet': True,
+    'no_warnings': True,
+    'default_search': 'auto',
+    'source_address': '0.0.0.0'
+}
+
 # Экономика (сохранение данных)
 if not os.path.exists("economy.json"):
     with open("economy.json", "w") as f:
         json.dump({}, f)
+
+# Функция для получения баланса пользователя
+def get_balance(user_id):
+    with open("economy.json", "r") as f:
+        economy = json.load(f)
+    return economy.get(str(user_id), 0)
 
 # Главное меню
 class MainMenu(View):
@@ -249,20 +270,6 @@ class TranslateModal(disnake.ui.Modal):
         translation = response["responseData"]["translatedText"]
         await interaction.response.send_message(f"Перевод: {translation}")
 
-ytdl_format_options = {
-    'format': 'bestaudio/best',
-    'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
-    'restrictfilenames': True,
-    'noplaylist': True,
-    'nocheckcertificate': True,
-    'ignoreerrors': False,
-    'logtostderr': False,
-    'quiet': True,
-    'no_warnings': True,
-    'default_search': 'auto',
-    'source_address': '0.0.0.0'
-}
-
 # Меню музыки
 class MusicMenu(View):
     def __init__(self):
@@ -321,9 +328,7 @@ class EconomyMenu(View):
     @disnake.ui.button(label="Баланс", style=disnake.ButtonStyle.green)
     async def balance_button(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         user_id = str(interaction.author.id)
-        with open("economy.json", "r") as f:
-            economy = json.load(f)
-        balance = economy.get(user_id, 0)
+        balance = get_balance(user_id)
         await interaction.response.send_message(f"Ваш баланс: {balance} монет.", ephemeral=True)
 
     @disnake.ui.button(label="Ежедневный бонус", style=disnake.ButtonStyle.green)
@@ -343,7 +348,35 @@ class EconomyMenu(View):
 # Слэш-команда /menu
 @bot.slash_command(name="menu", description="Открыть главное меню")
 async def menu(interaction: disnake.ApplicationCommandInteraction):
-    await interaction.response.send_message("Выберите категорию:", view=MainMenu())
+    # Информация о боте
+    bot_info = (
+        "🤖 **Информация о боте:**\n"
+        "Это универсальный бот с множеством функций:\n"
+        "- Модерация сервера.\n"
+        "- Развлечения (викторины, шутки).\n"
+        "- Утилиты (погода, перевод).\n"
+        "- Музыка (воспроизведение треков).\n"
+        "- Экономика (виртуальная валюта).\n"
+    )
+
+    # Информация о пользователе
+    user = interaction.author
+    join_date = user.joined_at.strftime("%d.%m.%Y")
+    roles = ", ".join([role.name for role in user.roles if role.name != "@everyone"])
+    balance = get_balance(user.id)
+
+    user_info = (
+        f"👤 **Информация о пользователе:**\n"
+        f"Имя: {user.display_name}\n"
+        f"Тег: {user}\n"
+        f"Присоединился: {join_date}\n"
+        f"Роли: {roles}\n"
+        f"Баланс: {balance} монет\n"
+    )
+
+    # Отправка сообщения
+    embed = disnake.Embed(title="Главное меню", description=bot_info + "\n" + user_info, color=disnake.Color.blue())
+    await interaction.response.send_message(embed=embed, view=MainMenu())
 
 # Событие при запуске бота
 @bot.event
