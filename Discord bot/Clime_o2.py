@@ -1,13 +1,13 @@
 import disnake
-from disnake.ext import commands
-from disnake.ui import Button, View
+from disnake.ext import commands, tasks
+from disnake.ui import Button, View, Select
 import random
 import json
 import os
 import requests
 import youtube_dl
 from disnake import FFmpegPCMAudio
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Настройки для youtube_dl
 ytdl_format_options = {
@@ -33,18 +33,33 @@ if not os.path.exists("economy.json"):
     with open("economy.json", "w") as f:
         json.dump({}, f)
 
+# Магазин ролей
+roles_shop = {
+    "Новобранец": {"price": 100, "emoji": "🟢"},
+    "Рядовой": {"price": 300, "emoji": "🟡"},
+    "Младший лейтенант": {"price": 600, "emoji": "🔵"},
+    "Лейтенант": {"price": 1000, "emoji": "🔴"},
+}
+
 # Функция для получения баланса пользователя
 def get_balance(user_id):
     with open("economy.json", "r") as f:
         economy = json.load(f)
     return economy.get(str(user_id), 0)
 
+# Функция для обновления баланса
+def update_balance(user_id, amount):
+    with open("economy.json", "r") as f:
+        economy = json.load(f)
+    economy[str(user_id)] = economy.get(str(user_id), 0) + amount
+    with open("economy.json", "w") as f:
+        json.dump(economy, f)
+
 # Функция для фильтрации ролей
 def filter_roles(roles):
     filtered_roles = []
     for role in roles:
-        # Роли с эмодзи или "Администрация"
-        if any(char in role.name for char in ["👑", "⭐", "🔧", "🎮"]) or role.name == "Администрация":
+        if any(char in role.name for char in ["🍌", "🍍", "🥝", "🐱", "🍺", "🍊", "🍆", "🥥"]):
             filtered_roles.append(role.name)
     return filtered_roles
 
@@ -355,31 +370,64 @@ class EconomyMenu(View):
     @disnake.ui.button(label="Ежедневный бонус", style=disnake.ButtonStyle.green)
     async def daily_button(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         user_id = str(interaction.author.id)
-        with open("economy.json", "r") as f:
-            economy = json.load(f)
-        economy[user_id] = economy.get(user_id, 0) + 100
-        with open("economy.json", "w") as f:
-            json.dump(economy, f)
+        update_balance(user_id, 100)
         await interaction.response.send_message("Вы получили 100 монет!", ephemeral=True)
+
+    @disnake.ui.button(label="Магазин ролей", style=disnake.ButtonStyle.green)
+    async def shop_button(self, button: disnake.ui.Button, interaction: disnake.Interaction):
+        await interaction.response.edit_message(view=RoleShopMenu())
 
     @disnake.ui.button(label="Назад", style=disnake.ButtonStyle.secondary)
     async def back_button(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         await interaction.response.edit_message(view=MainMenu())
 
+# Магазин ролей
+class RoleShopMenu(View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+        # Выпадающее меню для выбора роли
+        self.add_item(RoleSelect())
+
+    @disnake.ui.button(label="Назад", style=disnake.ButtonStyle.secondary)
+    async def back_button(self, button: disnake.ui.Button, interaction: disnake.Interaction):
+        await interaction.response.edit_message(view=EconomyMenu())
+
+# Выпадающее меню для выбора роли
+class RoleSelect(disnake.ui.Select):
+    def __init__(self):
+        options = [
+            disnake.SelectOption(label=role, description=f"Цена: {details['price']} монет", emoji=details["emoji"])
+            for role, details in roles_shop.items()
+        ]
+        super().__init__(placeholder="Выберите роль", options=options, custom_id="role_select")
+
+    async def callback(self, interaction: disnake.Interaction):
+        selected_role = self.values[0]
+        user = interaction.author
+        user_roles = [role.name for role in user.roles]
+
+        # Проверка, есть ли у пользователя более высокая роль
+        if selected_role in user_roles:
+            await interaction.response.send_message("У вас уже есть эта роль.", ephemeral=True)
+            return
+
+        # Проверка баланса
+        price = roles_shop[selected_role]["price"]
+        balance = get_balance(user.id)
+        if balance < price:
+            await interaction.response.send_message("Недостаточно монет.", ephemeral=True)
+            return
+
+        # Покупка роли
+        update_balance(user.id, -price)
+        role = disnake.utils.get(interaction.guild.roles, name=selected_role)
+        await user.add_roles(role)
+        await interaction.response.send_message(f"Вы купили роль {selected_role}!", ephemeral=True)
+
 # Слэш-команда /menu
 @bot.slash_command(name="menu", description="Открыть главное меню")
 async def menu(interaction: disnake.ApplicationCommandInteraction):
-    # Информация о боте
-    bot_info = (
-        "🤖 **Информация о боте:**\n"
-        "Это универсальный бот с множеством функций:\n"
-        "- Модерация сервера.\n"
-        "- Развлечения (викторины, шутки).\n"
-        "- Утилиты (погода, перевод).\n"
-        "- Музыка (воспроизведение треков).\n"
-        "- Экономика (виртуальная валюта).\n"
-    )
-
     # Информация о пользователе
     user = interaction.author
     join_date = user.joined_at.strftime("%d.%m.%Y")
@@ -387,18 +435,74 @@ async def menu(interaction: disnake.ApplicationCommandInteraction):
     balance = get_balance(user.id)
 
     user_info = (
-        f"👤 **Информация о {user.display_name}:**\n"
-        f"Тег: {user}\n"
-        f"Присоединился: {join_date}\n"
-        f"Роли: {', '.join(roles)}\n"
-        f"💰 **Баланс:** {balance} монет\n"
+        f"**Инфо {user.display_name}**\n"
+        f"Время на сервере: {join_date}\n"
+        f"Звание:\n"
+        "{\n"
+        + "\n".join([f"{role}" for role in roles]) +
+        "\n}\n"
+        f"**Баланс:** {balance} монет\n"
+    )
+
+    # Информация о боте
+    bot_info = (
+        f"🤖 **{bot.user.name}**\n"
+        f"Сервер: {interaction.guild.name}\n"
+        "**Функции бота:**\n"
+        "- **Модерация**: Бан, кик, очистка сообщений.\n"
+        "- **Развлечения**: Викторины, шутки, игры.\n"
+        "- **Утилиты**: Погода, перевод.\n"
+        "- **Музыка**: Воспроизведение треков.\n"
+        "- **Экономика**: Виртуальная валюта, магазин ролей.\n"
     )
 
     # Отправка сообщения
     embed = disnake.Embed(title="Главное меню", color=disnake.Color.blue())
+    embed.add_field(name="Информация о пользователе", value=user_info, inline=False)
     embed.add_field(name="Информация о боте", value=bot_info, inline=False)
-    embed.add_field(name=f"Информация о {user.display_name}", value=user_info, inline=False)
     await interaction.response.send_message(embed=embed, view=MainMenu())
+
+# Ежедневная награда за первое сообщение
+@bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    user_id = str(message.author.id)
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    # Проверка, получил ли пользователь награду сегодня
+    with open("economy.json", "r") as f:
+        economy = json.load(f)
+
+    if economy.get(user_id, {}).get("last_message_date") != today:
+        update_balance(user_id, 50)
+        economy[user_id]["last_message_date"] = today
+        with open("economy.json", "w") as f:
+            json.dump(economy, f)
+        await message.channel.send(f"{message.author.mention}, вы получили 50 монет за первое сообщение сегодня!")
+
+    await bot.process_commands(message)
+
+# Ежедневная награда за первую реакцию
+@bot.event
+async def on_reaction_add(reaction, user):
+    if user.bot:
+        return
+
+    user_id = str(user.id)
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    # Проверка, получил ли пользователь награду сегодня
+    with open("economy.json", "r") as f:
+        economy = json.load(f)
+
+    if economy.get(user_id, {}).get("last_reaction_date") != today:
+        update_balance(user_id, 30)
+        economy[user_id]["last_reaction_date"] = today
+        with open("economy.json", "w") as f:
+            json.dump(economy, f)
+        await reaction.message.channel.send(f"{user.mention}, вы получили 30 монет за первую реакцию сегодня!")
 
 # Событие при запуске бота
 @bot.event
