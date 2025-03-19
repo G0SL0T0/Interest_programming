@@ -1,4 +1,5 @@
 import disnake
+import youtube_dl
 from disnake.ext import commands
 from config import TOKEN
 import logging
