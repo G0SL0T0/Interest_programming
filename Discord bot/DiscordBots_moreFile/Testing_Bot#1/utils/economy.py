@@ -2,6 +2,9 @@ import json
 import os
 from datetime import datetime
 
+if not os.path.exists("data"):
+    os.makedirs("data")
+
 if not os.path.exists("data/economy.json"):
     with open("data/economy.json", "w") as f:
         json.dump({}, f)
@@ -9,6 +12,25 @@ if not os.path.exists("data/economy.json"):
 if not os.path.exists("data/daily.json"):
     with open("data/daily.json", "w") as f:
         json.dump({}, f)
+
+def get_balance(user_id):
+    try:
+        with open("data/economy.json", "r") as f:
+            economy = json.load(f)
+        return economy.get(user_id, 0)
+    except Exception as e:
+        print(f"Ошибка при чтении economy.json: {e}")
+        return 0
+
+def update_balance(user_id, amount):
+    try:
+        with open("data/economy.json", "r") as f:
+            economy = json.load(f)
+        economy[user_id] = economy.get(user_id, 0) + amount
+        with open("data/economy.json", "w") as f:
+            json.dump(economy, f)
+    except Exception as e:
+        print(f"Ошибка при обновлении economy.json: {e}")
 
 def get_balance(user_id):
     with open("data/economy.json", "r") as f:
