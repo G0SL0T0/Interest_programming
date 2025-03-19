@@ -1,11 +1,10 @@
 import disnake
 from disnake.ui import View, Button
+from views.main_menu import MainMenu
 
 class ModerationMenu(View):
     def __init__(self):
         super().__init__(timeout=None)
-
-        # Кнопки для модерации
         self.add_item(Button(label="Бан", style=disnake.ButtonStyle.danger, custom_id="ban"))
         self.add_item(Button(label="Кик", style=disnake.ButtonStyle.danger, custom_id="kick"))
         self.add_item(Button(label="Очистка", style=disnake.ButtonStyle.primary, custom_id="clear"))

@@ -1,6 +1,11 @@
 import disnake
 from disnake.ext import commands
 from config import TOKEN
+import logging
+
+# Настройка логов
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Настройки бота
 intents = disnake.Intents.all()

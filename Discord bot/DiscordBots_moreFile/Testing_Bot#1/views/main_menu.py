@@ -1,11 +1,14 @@
 import disnake
 from disnake.ui import View, Select
+from views.moderation_menu import ModerationMenu
+from views.fun_menu import FunMenu
+from views.utilities_menu import UtilitiesMenu
+from views.music_menu import MusicMenu
+from views.economy_menu import EconomyMenu
 
 class MainMenu(View):
     def __init__(self):
         super().__init__(timeout=None)
-
-        # Выпадающее меню для выбора категорий
         self.add_item(CategorySelect())
 
 class CategorySelect(Select):
