@@ -1,17 +1,17 @@
 import disnake
 from disnake.ui import View, Select
-from views.moderation_menu import ModerationMenu
+#from views.moderation_menu import ModerationMenu
 from views.fun_menu import FunMenu
 from views.utilities_menu import UtilitiesMenu
 from views.music_menu import MusicMenu
 from views.economy_menu import EconomyMenu
 
-class MainMenu(View):
+class MainMenuView(View):
     def __init__(self):
         super().__init__(timeout=None)
-        self.add_item(CategorySelect())
+        self.add_item(MainMenuSelect())
 
-class CategorySelect(Select):
+class MainMenuSelect(Select):
     def __init__(self):
         options = [
             disnake.SelectOption(label="Модерация", description="Команды для модерации", emoji="🛡️"),
@@ -24,9 +24,9 @@ class CategorySelect(Select):
 
     async def callback(self, interaction: disnake.Interaction):
         selected_category = self.values[0]
-        if selected_category == "Модерация":
-            await interaction.response.edit_message(view=ModerationMenu())
-        elif selected_category == "Развлечения":
+        #if selected_category == "Модерация":
+            #await  interaction.response.edit_message(view=ModerationMenu())
+        if selected_category == "Развлечения":
             await interaction.response.edit_message(view=FunMenu())
         elif selected_category == "Утилиты":
             await interaction.response.edit_message(view=UtilitiesMenu())

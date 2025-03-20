@@ -23,7 +23,7 @@ class MusicControlView(disnake.ui.View):
             self.clear_items()  # Удаляем все кнопки
             self.add_item(disnake.ui.Button(label="Добавить трек", style=disnake.ButtonStyle.primary, custom_id="add_track"))
             await self.message.edit(view=self)
-            self.update_view.stop()  # Останавливаем обновление
+            self.update_view.stop()
             return
 
         # Обновляем состояние кнопок и ползунка
@@ -40,7 +40,7 @@ class MusicControlView(disnake.ui.View):
                     if self.voice_client.is_playing():
                         position = self.voice_client.position
                         duration = self.voice_client.source.duration
-                        progress = int((position / duration) * 20)  # 20 символов для ползунка
+                        progress = int((position / duration) * 20)
                         child.label = "[" + "=" * progress + " " * (20 - progress) + "]"
                     else:
                         child.label = "[                    ]"
@@ -65,21 +65,20 @@ class MusicControlView(disnake.ui.View):
 
     @disnake.ui.button(emoji="⏭️", style=disnake.ButtonStyle.secondary, custom_id="skip")
     async def skip_button(self, button: disnake.ui.Button, interaction: disnake.Interaction):
-        self.voice_client.stop()  # Останавливаем текущий трек
+        self.voice_client.stop()
         await interaction.response.defer()
 
     @disnake.ui.button(emoji="🚪", style=disnake.ButtonStyle.danger, custom_id="leave")
     async def leave_button(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         await self.voice_client.disconnect()
         await interaction.response.send_message("Бот вышел из канала.")
-        self.update_view.stop()  # Останавливаем обновление меню
+        self.update_view.stop()
 
     @disnake.ui.button(label="Добавить трек", style=disnake.ButtonStyle.primary, custom_id="add_track")
     async def add_track_button(self, button: disnake.ui.Button, interaction: disnake.Interaction):
         await interaction.response.send_modal(modal=AddTrackModal(self.voice_client, self.bot))
 
     async def on_timeout(self):
-        # Останавливаем обновление меню при истечении времени
         self.update_view.stop()
 
 # Модальное окно для добавления трека
@@ -97,7 +96,7 @@ class AddTrackModal(disnake.ui.Modal):
         try:
             with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:
                 info = ydl.extract_info(url, download=False)
-                url2 = info['url']  # Используем 'url' вместо 'formats'
+                url2 = info['url']
                 self.voice_client.play(FFmpegPCMAudio(url2))
 
             # Отправляем новое интерактивное меню
@@ -115,9 +114,8 @@ class Music(commands.Cog):
 
     @commands.slash_command(name="play", description="Воспроизвести музыку")
     async def play(self, interaction: disnake.ApplicationCommandInteraction, url: str):
-        await interaction.response.defer()  # Отложенный ответ, чтобы избежать тайм-аута
+        await interaction.response.defer()
 
-        # Проверка, что пользователь находится в голосовом канале
         if not interaction.author.voice:
             await interaction.followup.send("Вы должны находиться в голосовом канале!")
             return
@@ -125,20 +123,19 @@ class Music(commands.Cog):
         voice_channel = interaction.author.voice.channel
         voice_client = interaction.guild.voice_client
 
-        # Проверка, что бот уже подключен к другому каналу
         if voice_client and voice_client.is_connected():
             if voice_client.channel != voice_channel:
                 await interaction.followup.send("Бот уже подключен к другому каналу!")
                 return
         else:
-            # Подключение к голосовому каналу
+
             voice_client = await voice_channel.connect()
 
         try:
-            # Извлечение информации о треке
+
             with youtube_dl.YoutubeDL(ytdl_format_options) as ydl:
                 info = ydl.extract_info(url, download=False)
-                url2 = info['url']  # Используем 'url' вместо 'formats'
+                url2 = info['url'] 
                 voice_client.play(FFmpegPCMAudio(url2))
 
             # Отправляем интерактивное меню

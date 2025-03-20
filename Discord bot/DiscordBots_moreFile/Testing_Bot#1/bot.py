@@ -13,7 +13,8 @@ intents = disnake.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 # Загрузка Cog'ов
-bot.load_extension("cogs.moderation")
+#bot.load_extension("cogs.moderation")
+bot.load_extension("cogs.main_menu")
 bot.load_extension("cogs.fun")
 bot.load_extension("cogs.utilities")
 bot.load_extension("cogs.music")
