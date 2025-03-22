@@ -1,6 +1,5 @@
 import disnake
 from disnake.ui import View, Button
-from views.main_menu import MainMenu
 
 class ModerationMenu(View):
     def __init__(self):
@@ -12,6 +11,7 @@ class ModerationMenu(View):
 
     async def interaction_check(self, interaction: disnake.Interaction):
         if interaction.data.custom_id == "back":
-            await interaction.response.edit_message(view=MainMenu())
+            from views.main_menu import MainMenuView  # Ленивый импорт
+            await interaction.response.edit_message(view=MainMenuView())
         else:
             await interaction.response.send_message(f"Вы выбрали: {interaction.data.custom_id}", ephemeral=True)

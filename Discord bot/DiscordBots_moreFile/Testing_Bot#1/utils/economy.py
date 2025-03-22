@@ -32,18 +32,6 @@ def update_balance(user_id, amount):
     except Exception as e:
         print(f"Ошибка при обновлении economy.json: {e}")
 
-def get_balance(user_id):
-    with open("data/economy.json", "r") as f:
-        economy = json.load(f)
-    return economy.get(user_id, 0)
-
-def update_balance(user_id, amount):
-    with open("data/economy.json", "r") as f:
-        economy = json.load(f)
-    economy[user_id] = economy.get(user_id, 0) + amount
-    with open("data/economy.json", "w") as f:
-        json.dump(economy, f)
-
 def get_last_daily(user_id):
     with open("data/daily.json", "r") as f:
         daily = json.load(f)

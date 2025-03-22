@@ -1,6 +1,6 @@
 import disnake
 from disnake.ext import commands
-from datetime import datetime
+from datetime import datetime, timezone
 from views.main_menu import MainMenuView
 
 class MainMenu(commands.Cog):
@@ -13,7 +13,7 @@ class MainMenu(commands.Cog):
         member = interaction.author
         roles = [role.name for role in member.roles if role.name != "@everyone"]
         join_date = member.joined_at
-        days_on_server = (datetime.now() - join_date).days
+        days_on_server = (datetime.now(timezone.utc) - join_date).days
 
         # Роли с эмодзи
         role_emojis = {
@@ -41,7 +41,7 @@ class MainMenu(commands.Cog):
 
         # Отправляем сообщения
         await interaction.response.send_message(embed=embed_user)
-        await interaction.followup.send(embed=embed_bot, view=MainMenuView())
+        await interaction.followup.send(embed=embed_bot, view=MainMenuView(self.bot))
 
 def setup(bot):
     bot.add_cog(MainMenu(bot))
