@@ -6,6 +6,7 @@ discord_bot/
 ├── Strukture.txt
 │
 ├── cogs/                   # Папка для Cog'ов (расширения бота)
+│   ├── main_menu.py             
 │   ├── moderation.py       # Модерация (бан, кик, очистка)
 │   ├── fun.py              # Развлечения (викторины, шутки, игры)
 │   ├── utilities.py        # Утилиты (погода, перевод)
@@ -27,7 +28,7 @@ discord_bot/
 │   ├── economy_menu.py     # Меню экономики
 │   └── __init__.py         # Инициализация View
 │
-└── data/                   # Папка для хранения данных
-    └── economy.json        # Файл для хранения данных экономики
-
+└── data/ 
+    ├── daily.json
+    └── economy.json
 
