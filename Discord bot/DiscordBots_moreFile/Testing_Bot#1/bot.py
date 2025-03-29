@@ -1,8 +1,8 @@
 import disnake
-import youtube_dl
 from disnake.ext import commands
-from config import TOKEN
+import youtube_dl
 import logging
+from config import TOKEN
 
 # Настройка логов
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
