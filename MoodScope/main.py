@@ -14,7 +14,6 @@ import time
 from dotenv import load_dotenv
 import os
 
-# Загружаем переменные окружения
 load_dotenv()
 
 def main():
@@ -52,13 +51,11 @@ def main():
         log_info(f"Top trends: {trends}")
         plot_trends(trends)  # Визуализация
 
-        # Визуализация настроений
         plot_sentiments()
 
-        # Обновляем Dash-приложение
         update_dash_app()
 
-        time.sleep(60)  # Обновляем каждую минуту
+        time.sleep(60)
 
 if __name__ == "__main__":
     main()
