@@ -2,7 +2,6 @@ import smtplib
 from email.mime.text import MIMEText
 from config import EMAIL_SENDER, EMAIL_PASSWORD, EMAIL_RECEIVER
 
-# Отправка email
 def send_email(subject, message):
     msg = MIMEText(message)
     msg['Subject'] = subject
