@@ -1,6 +1,5 @@
 from sentiment_analysis import analyze_sentiment
 
-# Анализ настроений для Instagram
 def analyze_instagram_posts(posts):
     sentiments = []
     for post in posts:
