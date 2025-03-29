@@ -3,7 +3,6 @@ import pandas as pd
 from database import fetch_data
 from utils.logging_utils import log_info, log_error
 
-# Функция для построения графика настроений
 def plot_sentiments():
     try:
         data = fetch_data()
@@ -27,7 +26,6 @@ def plot_sentiments():
     except Exception as e:
         log_error(f"Error generating sentiment plot: {e}")
 
-# Функция для построения гистограммы трендов
 def plot_trends(trends):
     try:
         words, frequencies = zip(*trends)
