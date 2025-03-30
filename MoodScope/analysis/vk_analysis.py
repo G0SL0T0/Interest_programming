@@ -1,6 +1,5 @@
 from sentiment_analysis import analyze_sentiment
 
-# Анализ настроений для VK
 def analyze_vk_posts(posts):
     sentiments = []
     for post in posts:
