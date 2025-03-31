@@ -27,11 +27,10 @@ def start_sorting():
 
     visualize_sorting(generator, algorithm, speed)
 
-# Создаем интерфейс
 root = tk.Tk()
 root.title("Интерактивная сортировка")
 
-# Поле для ввода размера данных
+# Поле для ввода данных
 size_label = tk.Label(root, text="Размер данных:")
 size_label.pack()
 size_entry = tk.Entry(root)
