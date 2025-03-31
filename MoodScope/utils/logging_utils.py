@@ -1,7 +1,6 @@
 import logging
 from config import LOG_FILE
 
-# Настройка логирования
 logging.basicConfig(
     filename=LOG_FILE,
     level=logging.INFO,
