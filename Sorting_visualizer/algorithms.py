@@ -4,7 +4,7 @@ def bubble_sort(data):
         for j in range(0, n-i-1):
             if data[j] > data[j+1]:
                 data[j], data[j+1] = data[j+1], data[j]
-                yield data  # Возвращаем текущее состояние данных
+                yield data
 
 def quick_sort(data):
     def _quick_sort(data, low, high):
