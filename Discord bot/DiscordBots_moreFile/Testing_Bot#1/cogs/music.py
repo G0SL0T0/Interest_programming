@@ -8,7 +8,6 @@ import asyncio
 
 logger = logging.getLogger(__name__)
 
-# Класс для интерактивного меню
 class MusicControlView(disnake.ui.View):
     def __init__(self, voice_client, bot):
         super().__init__(timeout=None)
