@@ -18,7 +18,6 @@ class MusicControlView(disnake.ui.View):
 
     @tasks.loop(seconds=5)
     async def update_view(self):
-        # Проверяем, закончилось ли воспроизведение
         if not self.voice_client.is_playing() and not self.voice_client.is_paused():
             self.clear_items()  # Удаляем все кнопки
             self.add_item(disnake.ui.Button(label="Добавить трек", style=disnake.ButtonStyle.primary, custom_id="add_track"))
@@ -26,7 +25,6 @@ class MusicControlView(disnake.ui.View):
             self.update_view.stop()
             return
 
-        # Обновляем состояние кнопок и ползунка
         for child in self.children:
             if isinstance(child, disnake.ui.Button):
                 if child.custom_id == "play_pause":
@@ -36,7 +34,6 @@ class MusicControlView(disnake.ui.View):
                 elif child.custom_id == "skip":
                     child.disabled = not self.voice_client.is_playing()
                 elif child.custom_id == "progress":
-                    # Обновляем текст ползунка
                     if self.voice_client.is_playing():
                         position = self.voice_client.position
                         duration = self.voice_client.source.duration
@@ -45,7 +42,6 @@ class MusicControlView(disnake.ui.View):
                     else:
                         child.label = "[                    ]"
 
-        # Обновляем сообщение с новым состоянием
         await self.message.edit(view=self)
 
     @disnake.ui.button(emoji="▶️", style=disnake.ButtonStyle.secondary, custom_id="play_pause")
@@ -81,7 +77,6 @@ class MusicControlView(disnake.ui.View):
     async def on_timeout(self):
         self.update_view.stop()
 
-# Модальное окно для добавления трека
 class AddTrackModal(disnake.ui.Modal):
     def __init__(self, voice_client, bot):
         super().__init__(title="Добавить трек", custom_id="add_track_modal")
@@ -99,7 +94,6 @@ class AddTrackModal(disnake.ui.Modal):
                 url2 = info['url']
                 self.voice_client.play(FFmpegPCMAudio(url2))
 
-            # Отправляем новое интерактивное меню
             view = MusicControlView(self.voice_client, self.bot)
             await interaction.followup.send("Музыка воспроизводится...", view=view)
             view.message = await interaction.original_message()
@@ -107,7 +101,6 @@ class AddTrackModal(disnake.ui.Modal):
             logger.error(f"Ошибка при воспроизведении музыки: {e}")
             await interaction.followup.send(f"Произошла ошибка: {e}")
 
-# Основной класс для музыки
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -138,7 +131,6 @@ class Music(commands.Cog):
                 url2 = info['url'] 
                 voice_client.play(FFmpegPCMAudio(url2))
 
-            # Отправляем интерактивное меню
             view = MusicControlView(voice_client, self.bot)
             await interaction.followup.send("Музыка воспроизводится...", view=view)
             view.message = await interaction.original_message()
