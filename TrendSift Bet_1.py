@@ -7,12 +7,12 @@ from textblob import TextBlob
 import matplotlib.pyplot as plt
 import time
 
-# Настройки для Twitter
+# Twitter функции
 twitter_auth = tweepy.OAuthHandler('TWITTER_CONSUMER_KEY', 'TWITTER_CONSUMER_SECRET')
 twitter_auth.set_access_token('TWITTER_ACCESS_TOKEN', 'TWITTER_ACCESS_TOKEN_SECRET')
 twitter_api = tweepy.API(twitter_auth)
 
-# Настройки для Reddit
+# Reddit функция
 reddit = praw.Reddit(
     client_id='REDDIT_CLIENT_ID',
     client_secret='REDDIT_CLIENT_SECRET',
