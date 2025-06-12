@@ -1,6 +1,14 @@
+<<<<<<< Updated upstream
 
-TOKEN = "="
+TOKEN = "*"
 
+=======
+# Токен бота
+TOKEN = "*"
+
+
+# Настройки для youtube
+>>>>>>> Stashed changes
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
